@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# 本地 Claude Code 配置
+.claude/
+
+# 个人文档（不入库）
+*.docx
+
+# 数据文件（体积较大，可按需取消注释上传）
+# usdt_blacklist.csv
