@@ -122,6 +122,49 @@ python3 bridge/bridge_event_scanner.py 0xYourAddress --output result.json
 
 **注意**：Stargate 的 Pool Swap 事件不含目标地址（to），发现事件后需配合 `cross_chain_tracer.StargateTracer` 解析 tx calldata 获取。
 
+### 桥追踪矩阵（当前实现）
+
+下表说明：每个桥在本项目里是如何识别目标链和目标地址的。
+
+| 桥 | 以太坊侧合约（示例） | 典型目标链（当前代码） | 解析来源 | 日志/输入中能拿到什么 | 目标链可判定 | 目标地址可判定 |
+|---|---|---|---|---|---|---|
+| Stargate Finance | `0x8731...1e98`, `0x150f...2376` | ethereum / bsc / avalanche / polygon / arbitrum / optimism / fantom / celo / zkevm / gnosis / base / xlayer / tron(214,230) | calldata + pool logs | `dstChainId`、`amount`、`to(bytes)` | 是 | 是（Pool 事件本身无 to，需解析 calldata） |
+| Across Protocol v3/v2 | `0x5c7b...35c5`, `0x4d90...7381` | ethereum / arbitrum / optimism / polygon / bsc / avalanche / base（其余按链 ID 回退为 `evm_xxx`） | receipt logs | `destinationChainId`、`depositor`、`recipient`、`amount` | 是 | 是 |
+| Celer cBridge v2 | `0x5427...1820` | ethereum / bsc / avalanche / polygon / arbitrum / optimism / fantom / celo / zkevm / gnosis / base / xlayer / tron(214,230) | receipt logs | `sender`、`receiver`、`dstChainId`、`amount` | 是 | 是 |
+| Wormhole Core Bridge | `0x98f3...288b` | 目标链在 payload/VAA 中（代码当前未内置完整链名映射） | receipt logs | `sender`、`sequence`、`payload` | 部分（需解 payload/VAA） | 部分（需解 payload/VAA） |
+| Orbiter Finance | `0x80c6...bcf8` | ethereum(9001) / tron(9002) / polygon(9006) / optimism(9007) / arbitrum(9010) / base(9016) / zksync(9018) / starknet(9019) | 启发式规则（input/value） | 链代码、候选目标地址 | 可猜测 | 可猜测（非强证明） |
+
+补充：
+
+- `cross_chain_tracer.py` 对 Stargate / Across / Celer / Orbiter 提供单笔解析。
+- `bridge_event_scanner.py` 用 getLogs 批量扫描 Celer / Across / Stargate / Wormhole 事件。
+- `aml_analyzer.py` 将 Orbiter 归类为不透明桥（风险处理更保守），即使单笔可做启发式推断。
+- 目标链映射主要来自 `cross_chain_tracer.py` 中的 `LAYERZERO_CHAIN_ID` 与 `ORBITER_CHAIN_CODES`。
+
+### 跨链为何一定要看两条链
+
+跨链交易本质是“源链锁定/销毁 + 目标链解锁/铸造”，因此同一笔跨链通常对应两侧证据：
+
+1. 源链桥合约事件或 calldata：给出发送者、目标链 ID、金额、部分桥会给接收者。
+2. 目标链桥合约执行或 token Transfer：给出实际到账地址和到账金额。
+
+也就是说，光看源链只能确认“发起了跨链意图”，要确认“钱最终到谁手里”，必须在目标链继续查。
+
+### 目标链实操检查清单
+
+1. 先在源链拿到 `dst_chain_id`（或等价字段），映射到链名。
+2. 若源链日志已有 `recipient/receiver/to`，记录为候选目标地址。
+3. 若源链日志没有目标地址（如 Stargate Pool / Wormhole 部分场景），继续解析 calldata 或 payload/VAA。
+4. 到目标链浏览器查询对应 tx 或桥接后首笔 token Transfer，确认实际接收地址。
+5. 再对目标地址做 1 跳黑名单关联检查（本项目对部分 EVM 链已内置）。
+
+### 字段速查（看 log 时最有用）
+
+- Celer Send：`sender`（topic[2]）、`receiver`（topic[3]）、`dstChainId`（data）
+- Across V3FundsDeposited：`destinationChainId`、`depositor`、`recipient`、`inputAmount`
+- Stargate Swap（Pool）：`chainId`、`from`、`amountSD`（不含 to）
+- Wormhole LogMessagePublished：`sender`、`sequence`、`payload`（目标信息在 payload）
+
 ## 相关文献
 
 本系统的设计参考了以下工作：
