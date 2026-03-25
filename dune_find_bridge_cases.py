@@ -4,12 +4,16 @@
 这是找真实 AML 测试案例的正确方法（直接查链上事件日志，不依赖 Etherscan txlist）
 """
 
+import os
 import csv
 import time
 import json
 import requests
+from dotenv import load_dotenv
 
-DUNE_API_KEY = "CYMZu1iaH66gTyOJbBe9lOnHy5LrPGjH"
+load_dotenv()
+
+DUNE_API_KEY = os.getenv("DUNE_API_KEY", "")
 BLACKLIST_CSV = "usdt_blacklist.csv"
 OUTPUT_FILE = "bridge_cases_from_dune.json"
 

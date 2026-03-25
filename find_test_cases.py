@@ -4,13 +4,17 @@
 逻辑：黑名单地址 → 找其交易对手 → 检测对手是否与跨链桥合约交互
 """
 
+import os
 import csv
 import time
 import json
 import requests
 from typing import Set, Dict, List
+from dotenv import load_dotenv
 
-ETHERSCAN_API_KEY = "RCZ3XUHCS7QDYGSPS2VT83T7487BNYWVBP"
+load_dotenv()
+
+ETHERSCAN_API_KEY = os.getenv("ETHERSCAN_API_KEY", "")
 BLACKLIST_CSV = "usdt_blacklist.csv"
 OUTPUT_FILE = "test_cases.json"
 SAMPLE_SIZE = 30     # 取多少个黑名单地址来挖（ETH链）

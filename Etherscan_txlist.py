@@ -1,10 +1,14 @@
+import os
 import requests
 from datetime import datetime, timedelta, timezone
 import pandas as pd
 import time
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Etherscan API Key
-api_key = "Your_Key"
+api_key = os.getenv("ETHERSCAN_API_KEY", "")
 
 # Contract address
 contract_address = "0xdAC17F958D2ee523a2206206994597C13D831ec7"  # USDT

@@ -1,7 +1,11 @@
+import os
 import requests
 import time
+from dotenv import load_dotenv
 
-API_KEY = "CYMZu1iaH66gTyOJbBe9lOnHy5LrPGjH"
+load_dotenv()
+
+API_KEY = os.getenv("DUNE_API_KEY", "")
 QUERY_ID = "6806719"
 headers = {"X-Dune-API-Key": API_KEY}
 

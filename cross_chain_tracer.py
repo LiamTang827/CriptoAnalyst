@@ -8,13 +8,17 @@
 支持桥：Stargate / Orbiter Finance / Across / Hop / Celer / Wormhole
 """
 
+import os
 import time
 import json
 import hashlib
 import requests
 from typing import Optional, Dict, List
+from dotenv import load_dotenv
 
-ETHERSCAN_API_KEY = "RCZ3XUHCS7QDYGSPS2VT83T7487BNYWVBP"
+load_dotenv()
+
+ETHERSCAN_API_KEY = os.getenv("ETHERSCAN_API_KEY", "")
 BLOCKSCOUT_ETH   = "https://eth.blockscout.com/api"
 TRON_API         = "https://apilist.tronscanapi.com/api"
 

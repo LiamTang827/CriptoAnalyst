@@ -15,10 +15,15 @@ from typing import Optional, Set, Dict, List, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime
 
+import os
+
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ==================== 配置 ====================
-ETHERSCAN_API_KEY = "RCZ3XUHCS7QDYGSPS2VT83T7487BNYWVBP"
+ETHERSCAN_API_KEY = os.getenv("ETHERSCAN_API_KEY", "")
 BLACKLIST_CSV = "usdt_blacklist.csv"
 REQUEST_DELAY = 0.25   # 请求间隔（秒），避免限速
 MAX_TX_FETCH = 100     # 每次查询最大交易数

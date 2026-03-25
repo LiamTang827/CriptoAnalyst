@@ -1,10 +1,15 @@
-import requests, time, os
+import os
+import requests
+import time
 from datetime import datetime, timezone
 import pandas as pd
 from collections import Counter
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ========= CONFIG (edit here) =========
-API_KEY    = "Your_Key"
+API_KEY    = os.getenv("ETHERSCAN_API_KEY", "")
 POOL_ADDR  = "0x7858e59e0c01ea06df3af3d20ac7b0003275d4bf"  # Example: V3 USDC-USDT 0.05% pool
 START_DATE = datetime(2023, 3, 1, 0, 0, 0, tzinfo=timezone.utc)
 END_DATE   = datetime(2023, 4, 1, 0, 0, 0, tzinfo=timezone.utc)
