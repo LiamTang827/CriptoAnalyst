@@ -18,4 +18,6 @@ __pycache__/
 *.docx
 
 # 数据文件（体积较大，可按需取消注释上传）
-# usdt_blacklist.csv
+usdt_blacklist.csv
+#ml
+ml/data/
